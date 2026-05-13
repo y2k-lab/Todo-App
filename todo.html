@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Todo</title>
+
+  <style>
+
+    body {
+      font-family: sans-serif;
+    }
+
+    li {
+      margin: 5px 0;
+    }
+
+  </style>
+</head>
+
+<body>
+<h1>Todo</h1>
+
+<ul id="taskList"></ul>
+
+<input id="taskInput" placeholder="タスク入力">
+<button onclick="addTask()">追加</button>
+
+<script>
+
+//------------------------------------------------------------------------------------------------------------------------
+console.log('JS動いてる？');
+
+
+// 追加
+function addTask(){
+
+  const value = document.getElementById('taskInput').value;
+
+  fetch('http://localhost:3000/tasks', {
+    method: 'POST',
+    headers: { 'Content-Type':'application/json' },
+    body: JSON.stringify({ title: value })
+  })
+
+  .then(res => res.json())
+  .then(newTask => {
+    
+    const list = document.getElementById('taskList');   
+
+    const li = createTaskElement(newTask);
+    list.appendChild(li);
+  });
+}
+
+  
+//------------------------------------------------------------------------------------------------------------------------
+
+// 表示
+function createTaskElement(task){
+
+  const li = document.createElement('li');
+
+  const span = document.createElement('span');
+
+  if (task.completed === 1){
+  span.textContent = '[完了]' + task.title;
+} else {
+  span.textContent = '[未完了]' + task.title;
+}
+
+  li.appendChild(span);
+
+  return li;
+}
+
+
+fetch('http://localhost:3000/tasks')
+  .then(res => {
+    console.log('resきてる?',res);
+    return res.json();
+  })
+  .then(tasks => {
+    console.log('tasksの中身',tasks);
+
+    const list = document.getElementById('taskList');
+        
+    tasks.forEach(task => {
+    console.log('ループ入った',task);
+
+    const li = createTaskElement(task);
+    list.appendChild(li);
+  });
+ });
+
+
+//-------------------------------------------------------------------------------------------------------------------------
+
+      // 編集ボタン
+      const editBtn = document.createElement('button');
+      editBtn.textContent = '編集';
+
+      editBtn.onclick = () => {
+      const newTitle = prompt('新しいタスク名を入力', task.title);
+
+       if (newTitle) {
+
+        fetch(`http://localhost:3000/tasks/${task.id}`,{
+          method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title: newTitle })
+        })
+        .then(() => {
+        task.title = newTitle;
+
+        if (task.completed === 1){
+          span.textContent = '[完了]' +
+      task.title;
+        } else {
+          span.textContent = '[未完了]' +
+      task.title;
+            }
+          });
+        }
+       };
+
+    li.appendChild(editBtn);
+
+//------------------------------------------------------------------------------------------------------------------------
+
+      // 削除ボタン
+      const btn = document.createElement('button');
+      btn.textContent = '削除';
+
+      btn.onclick = () => {
+        fetch(`http://localhost:3000/tasks/${task.id}`, {
+          method: 'DELETE'
+        })
+        .then(() => {
+          li.remove();
+      });
+    };
+    
+      li.appendChild(btn);
+
+//------------------------------------------------------------------------------------------------------------------------
+   
+      //完了ボタン
+     const doneBtn = document.createElement('button');
+     doneBtn.textContent = '完了';
+
+     doneBtn.onclick = () => {
+    
+      const newStatus = task.completed === 1 ?
+      0 : 1;
+
+     fetch(`http://localhost:3000/tasks/${task.id}`, {
+     method: 'PATCH',
+     headers: { 'Content-Type': 'application/json' },
+     body: JSON.stringify({completed: newStatus })
+    })
+
+  .then(() => {
+    task.completed = newStatus;
+    
+    if (task.completed === 1){
+      span.textContent = '[完了]' +
+task.title;
+    } else {
+      span.textContent = '[未完了]' +
+task.title;
+    }
+  });
+};
+  
+
+li.appendChild(doneBtn);
+
+//------------------------------------------------------------------------------------------------------------------------
+      
+
+      //liをulに追加
+      list.appendChild(li);
+
+</script>
+
+</body>
+</html>
+
+
+
+
