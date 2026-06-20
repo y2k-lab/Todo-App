@@ -24,11 +24,18 @@
 <ul id="taskList"></ul>
 
 <input id="taskInput" placeholder="タスク入力">
+
 <button onclick="addTask()">追加</button>
 
 <script>
 
-//------------------------------------------------------------------------------------------------------------------------
+document.getElementById('taskInput').addEventListener('keydown', (e) => {
+    
+   if (e.key === 'Enter') {
+     addTask();
+   }
+});
+
 console.log('JS動いてる？');
 
 
@@ -63,7 +70,7 @@ function createTaskElement(task){
 
   const span = document.createElement('span');
 
-  if (task.completed === 1){
+  if (Number(task.completed) === 1){
   span.textContent = '[完了]' + task.title;
 } else {
   span.textContent = '[未完了]' + task.title;
@@ -71,32 +78,7 @@ function createTaskElement(task){
 
   li.appendChild(span);
 
-  return li;
-}
-
-
-fetch('http://localhost:3000/tasks')
-  .then(res => {
-    console.log('resきてる?',res);
-    return res.json();
-  })
-  .then(tasks => {
-    console.log('tasksの中身',tasks);
-
-    const list = document.getElementById('taskList');
-        
-    tasks.forEach(task => {
-    console.log('ループ入った',task);
-
-    const li = createTaskElement(task);
-    list.appendChild(li);
-  });
- });
-
-
-//-------------------------------------------------------------------------------------------------------------------------
-
-      // 編集ボタン
+ // 編集ボタン
       const editBtn = document.createElement('button');
       editBtn.textContent = '編集';
 
@@ -112,7 +94,7 @@ fetch('http://localhost:3000/tasks')
         .then(() => {
         task.title = newTitle;
 
-        if (task.completed === 1){
+        if (Number(task.completed) === 1){
           span.textContent = '[完了]' +
       task.title;
         } else {
@@ -125,7 +107,7 @@ fetch('http://localhost:3000/tasks')
 
     li.appendChild(editBtn);
 
-//------------------------------------------------------------------------------------------------------------------------
+
 
       // 削除ボタン
       const btn = document.createElement('button');
@@ -142,7 +124,6 @@ fetch('http://localhost:3000/tasks')
     
       li.appendChild(btn);
 
-//------------------------------------------------------------------------------------------------------------------------
    
       //完了ボタン
      const doneBtn = document.createElement('button');
@@ -162,7 +143,7 @@ fetch('http://localhost:3000/tasks')
   .then(() => {
     task.completed = newStatus;
     
-    if (task.completed === 1){
+    if (Number(task.completed) === 1){
       span.textContent = '[完了]' +
 task.title;
     } else {
@@ -173,7 +154,35 @@ task.title;
 };
   
 
-li.appendChild(doneBtn);
+li.appendChild(doneBtn);     
+
+  return li;
+
+}
+
+
+fetch('http://localhost:3000/tasks')
+  .then(res => {
+    console.log('resきてる?',res);
+    return res.json();
+  })
+
+  .then(tasks => {
+
+    tasks.reverse();
+
+    console.log('tasksの中身',tasks);
+
+    const list = document.getElementById('taskList');
+
+    tasks.forEach(task => {
+    console.log('ループ入った',task);
+
+    const li = createTaskElement(task);
+    list.appendChild(li);
+  });
+ });
+
 
 //------------------------------------------------------------------------------------------------------------------------
       
